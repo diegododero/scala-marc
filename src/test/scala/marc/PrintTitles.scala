@@ -9,7 +9,7 @@ object PrintTitles extends App {
 	val parser = new MarcParser
 	while (reader.hasNext){
 	  val record = parser.parse(reader.next)
-	  record.getDataFieldsByTag("245").map(f =>
+	  record.getFieldsByTag("245").map(f =>
 	    println(f.subfields.get('a').get)
 	  )
 	}

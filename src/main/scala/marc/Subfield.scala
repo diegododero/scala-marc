@@ -1,6 +1,6 @@
 package marc
 
-class Subfield(code: Char, value: String) {
+class Subfield(val code: Char, val value: String) {
   
   override def toString = "$" + code + " " + value
 

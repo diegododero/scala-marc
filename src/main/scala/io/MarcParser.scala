@@ -10,17 +10,21 @@ import marc.Marc
 import marc.Record
 import scala.Array.canBuildFrom
 import exceptions.RecordLengthInvalidException
+import marc.Subfield
 
 class MarcParser {
   private var byteArray: Array[Byte] = new Array[Byte](10)
 
   def parse(recordData: String): Record = {
     byteArray = recordData.map(_.toByte).toArray
-    val leader = new Leader(leaderData)
-    if (leader.recordLength.toInt != recordSize){
+    val recordLengthInLeader = leaderData.slice(0, 5)
+    if (recordLengthInLeader.toInt != recordSize){
       throw new RecordLengthInvalidException
     }
-    new Record(leader, createDirectory, getControlFields, getDataFields)
+    val record = new Record
+    getControlFields(record)
+    getDataFields(record)    
+    record
   }
   
   def recordSize = byteArray.size + 1
@@ -53,16 +57,20 @@ class MarcParser {
     subfields.foldLeft(scala.collection.mutable.Map[Char, String]())((m, s) => m += (s.charAt(0) -> s.substring(1)))
   }
   
-  def getDataField(tag: String, data: String): DataField = new DataField(tag, getIndicator(data, 0), getIndicator(data, 1), getSubfields(data))
+  def getDataField(tag: String, data: String): DataField = {
+    val field = new DataField(tag, getIndicator(data, 0), getIndicator(data, 1))
+     getSubfields(data).map(subfield => field.addSubfield(new Subfield(subfield._1, subfield._2)))
+    field
+  }
   
   def getControlField(tag: String, data: String): ControlField = new ControlField(tag, data)
  
-  def getControlFields: List[ControlField] = {
-    mergeDirectoryWithFields.filter(t => isControlTag(t._1.tag)).sortWith(_._1.tag > _._1.tag).foldLeft(List[ControlField]())((l, x) => getControlField(x._1.tag, x._2) :: l)
+  def getControlFields(record: Record): Unit = {
+    mergeDirectoryWithFields.filter(t => isControlTag(t._1.tag)).sortWith(_._1.tag > _._1.tag).map(x => record.addField(getControlField(x._1.tag, x._2)))
   }
   
-  def getDataFields: List[DataField] = {
-    mergeDirectoryWithFields.filter(t => !isControlTag(t._1.tag)).sortWith(_._1.tag > _._1.tag).foldLeft(List[DataField]())((l, x) => getDataField(x._1.tag, x._2) :: l)
+  def getDataFields(record: Record): Unit = {
+    mergeDirectoryWithFields.filter(t => !isControlTag(t._1.tag)).sortWith(_._1.tag > _._1.tag).map(x => record.addField(getDataField(x._1.tag, x._2)))
   }
   
   def isControlTag(tag: String): Boolean = tag.startsWith(Marc.CONTROL_TAG_PREFIX)  

@@ -1,6 +1,10 @@
 bin/
 target/
+project/project
+project/target
 *.xml
 .classpath
 .project
 .cache
+.directory
+.settings/
