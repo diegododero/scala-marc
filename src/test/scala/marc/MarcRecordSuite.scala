@@ -12,6 +12,18 @@ class MarcRecordSuite extends FunSuite {
     val record = new Record
   }
   
+  test("record creation fields"){
+    new TestRecord{
+      assert(record.fields.size === 0)
+    }
+  }
+  
+  test("record creation leader"){
+    new TestRecord{
+      assert(record.leader.value === "          22        4500  ")
+    }
+  }
+  
   test("record add field"){
     new TestRecord{
       val field = new DataField("245", '1', '0')
