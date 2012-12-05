@@ -41,6 +41,7 @@ class MarcPrettyPrinter(val width: Int, val step: Int) extends PrettyPrinter(wid
   
   protected def formatAttributes(n: Node, sb: StringBuilder) {
     if (n.attributes.toList.size == 3){
+      //Ugly: XML attributes should not have an order
     	n.attributes.toList.sortWith(compare).foldLeft(sb) { (a,b) => a.append(' '); b.toString1(a); a
     	}}
     else  {
