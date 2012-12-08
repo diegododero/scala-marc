@@ -18,7 +18,7 @@ class MarcPrettyPrinter(val width: Int, val step: Int) extends PrettyPrinter(wid
     mkLeaf(sb)
     sb.toString
   }
-    
+
   override protected def startTag(n: Node, pscope: NamespaceBinding): (String, Int) = {
     var i = 0
     def mkStart(sb: StringBuilder) {
@@ -30,23 +30,24 @@ class MarcPrettyPrinter(val width: Int, val step: Int) extends PrettyPrinter(wid
       sb append '>'
     }
     val sb = new StringBuilder
-    mkStart(sb)    
+    mkStart(sb)
     (sb.toString, i)
   }
-  
+
   private def compare(attribute1: MetaData, attribute2: MetaData): Boolean = {
     val values = List("tag", "ind1", "ind2")
     values.indexOf(attribute1.key) < values.indexOf(attribute2.key)
   }
-  
+
   protected def formatAttributes(n: Node, sb: StringBuilder) {
-    if (n.attributes.toList.size == 3){
+    if (n.attributes.toList.size == 3) {
       //Ugly: XML attributes should not have an order
-    	n.attributes.toList.sortWith(compare).foldLeft(sb) { (a,b) => a.append(' '); b.toString1(a); a
-    	}}
-    else  {
-    	n.attributes.toList.reverse.foldLeft(sb) { (a,b) => a.append(' '); b.toString1(a); a }}
+      n.attributes.toList.sortWith(compare).foldLeft(sb) { (a, b) => a.append(' '); b.toString1(a); a
+      }
+    } else {
+      n.attributes.toList.reverse.foldLeft(sb) { (a, b) => a.append(' '); b.toString1(a); a }
+    }
     //(sb /: n.attributes.toList.reverse) { (r,v) => r.append(' '); v.toString1(r); r }
   }
-  
+
 }
