@@ -13,6 +13,10 @@ class ControlField(val tag: String, data: String) extends Field {
   def subfields = MutableList[Subfield]()
 
   def isControlNumberField = tag.startsWith(Marc.CONTROL_NUMBER_TAG_PREFIX)
+  
+  override def toTransmissionFormat = 
+    data +
+    Marc.FIELD_DELIMITER
 
   def toXML: Elem =
     <controlfield tag={ tag }>{ data }</controlfield>

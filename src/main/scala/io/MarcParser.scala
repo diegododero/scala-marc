@@ -9,26 +9,23 @@ import marc.Leader
 import marc.Marc
 import marc.Record
 import scala.Array.canBuildFrom
-import exceptions.RecordLengthInvalidException
+import exceptions.InvalidRecordLengthException
 import marc.Subfield
 import marc.LeaderValidator
 
-class MarcParser {
+object MarcParser {
   private var byteArray: Array[Byte] = new Array[Byte](10)
 
   def parse(recordData: String): Record = {
     byteArray = recordData.map(_.toByte).toArray
     val recordLengthInLeader = leaderData.slice(0, 5)
-    if (recordLengthInLeader.toInt != recordSize) {
-      throw new RecordLengthInvalidException
-    }
     val record = new Record(LeaderValidator.validate(leaderData))
     getControlFields(record)
     getDataFields(record)
     record
   }
 
-  def recordSize: Int = byteArray.size + 1
+  def recordSize: Int = byteArray.size
 
   private def leaderData: String = byteArray.slice(0, Marc.LEADER_LENGTH).map(_ toChar).mkString("")
 

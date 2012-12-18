@@ -2,25 +2,45 @@ package io
 
 import marc.Marc
 import scala.collection.Iterator
+import exceptions.InvalidRecordLengthException
+import marc.Record
+import scala.collection.mutable.MutableList
 
-class MarcReader(val filename: String) extends Iterator[String] {
-  val source = scala.io.Source.fromFile(filename)
+class MarcReader(val filename: String) {
+  var stream: scala.io.Source = scala.io.Source.fromFile(filename)
 
-  def getNextRecord: String = {
-    val sb = new StringBuilder
-    while ((source.hasNext) && (source.next != Marc.END_OF_RECORD)) {
-      sb += source.ch
+  def records: List[Record] = {
+    val source = scala.io.Source.fromFile(filename)
+    val records = MutableList[Record]()
+    while (source.hasNext) {
+      val raw = getRecord(source)
+      records += MarcParser.parse(raw)
     }
-    if (source.ch != Marc.END_OF_RECORD) {
-      throw new Exception("Malformed record")
-    }
-    sb.toString
+    records.toList
+  }
+  
+  def start: Unit = {
+    stream = scala.io.Source.fromFile(filename)
+  }
+  
+  def getNextData: String = {
+    val raw = getRecord(stream)
+    raw
+  }
+  
+  def getNext: Record = {
+    val raw = getRecord(stream)
+    MarcParser.parse(raw)
+  }
+  
+  protected def getRecord(source: scala.io.Source): String = {
+      val length = source.take(Marc.RECORD_LENGTH_SIZE).toList.mkString
+      val rest = source.take(length.toInt - Marc.RECORD_LENGTH_SIZE).toList.mkString
+      if ((rest.size < length.toInt - Marc.RECORD_LENGTH_SIZE) || (rest.charAt(rest.length - 1) != Marc.END_OF_RECORD)) {
+        throw new InvalidRecordLengthException(length.toInt, rest.size)
+      }
+      length ++ rest
   }
 
-  def reset: Unit = source.reset
-
-  def next = getNextRecord
-
-  def hasNext = source.hasNext
-
+  def decode(data: String) = MarcParser.parse(data)
 }

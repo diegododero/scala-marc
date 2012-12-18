@@ -23,7 +23,7 @@ class Leader(
   // g - Projected medium
   // i - Nonmusical sound recording 
   val recordType: String,
-  /* Possible values for bibliographical level */  
+  /* Possible values for bibliographical level */
   // a - Monographic component part
   // b - Serial component part
   // c - Collection
@@ -43,7 +43,7 @@ class Leader(
   val indicatorCount: Int,
   val subfieldCodeCount: Int,
   val baseAddress: Int,
-  /* Possible values for encoding level */  
+  /* Possible values for encoding level */
   // # - Full level
   // 1 - Full level, material not examined
   // 2 - Less-than-full level, material not examined
@@ -54,15 +54,15 @@ class Leader(
   // 8 - Prepublication level
   // u - Unknown
   // z - Not applicable 
-  val encodingLevel: String,  
-  /* Possible values for descripting cataloging form */    
+  val encodingLevel: String,
+  /* Possible values for descripting cataloging form */
   // # - Non-ISBD
   // a - AACR 2
   // c - ISBD punctuation omitted     
   // i - ISBD punctuation included
   // u - Unknown 
-  val descriptingCatalogingForm: String,  
-  /* Possible values for multipart resource record level */  
+  val descriptingCatalogingForm: String,
+  /* Possible values for multipart resource record level */
   // # - Not specified or not applicable
   // a - Set     
   // b - Part with independent title
@@ -83,22 +83,38 @@ class Leader(
   /*def setRecordLength(length: String): Unit = {
     value = new StringBuilder(value).replace(0, 3, length).toString
   }*/
-  
-  def value = 
+
+  def value =
     "%05d".format(recordLength) +
-    recordStatus +
-    recordType + 
-    bibliographicLevel +
-    typeOfControl +
-    codingScheme +
-    indicatorCount.toString +
-    subfieldCodeCount.toString +
-    "%05d".format(baseAddress) +
-    encodingLevel +
-    descriptingCatalogingForm +
-    multipartResourceRecordLevel +
-    "%04d".format(mapEntry)
+      recordStatus +
+      recordType +
+      bibliographicLevel +
+      typeOfControl +
+      codingScheme +
+      indicatorCount.toString +
+      subfieldCodeCount.toString +
+      "%05d".format(baseAddress) +
+      encodingLevel +
+      descriptingCatalogingForm +
+      multipartResourceRecordLevel +
+      "%04d".format(mapEntry)
+
+  def update(recordLength: Int, baseAddress: Int): Leader =
+    new Leader(
+      recordLength,
+      recordStatus,
+      recordType,
+      bibliographicLevel,
+      typeOfControl,
+      codingScheme,
+      indicatorCount,
+      subfieldCodeCount,
+      baseAddress,
+      encodingLevel,
+      descriptingCatalogingForm,
+      multipartResourceRecordLevel,
+      mapEntry)
 
   def toXML: Elem =
-    <leader>{value}</leader>
+    <leader>{ value }</leader>
 }

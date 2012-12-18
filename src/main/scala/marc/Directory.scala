@@ -10,4 +10,7 @@ class Directory {
   def addEntry(e: Entry) = {
     entries += e
   }
+  
+  def toTransmissionFormat: String = 
+    entries.map(e => e.tag + e.length + e.offset).mkString + Marc.FIELD_DELIMITER.toString
 }

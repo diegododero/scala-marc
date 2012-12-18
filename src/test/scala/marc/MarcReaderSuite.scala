@@ -8,14 +8,13 @@ import marc._
 import marc2xml.MarcXMLWriter
 import io.MarcParser
 import io.MarcReader
-import exceptions.RecordLengthInvalidException
+import exceptions.InvalidRecordLengthException
 
 @RunWith(classOf[JUnitRunner])
 class MarcReaderSuite extends FunSuite {
   trait TestMarc {
     val reader = new MarcReader("src/test/scala/marc/sandburg.mrc")
-    val parser = new MarcParser
-    val record = parser.parse(reader.next)
+    val record = reader.records.head
     MarcXMLWriter.write("sandburg.xml", record)
   }
 
@@ -24,18 +23,27 @@ class MarcReaderSuite extends FunSuite {
       assert(record.leader.value === "01142cam  2200301 a 4500")
     }
   }
-
+/*
   test("record size") {
     new TestMarc {
       assert(record.leader.recordLength.toInt === parser.recordSize)
     }
   }
-
+*/
+  test("record length less than 12 bytes") {
+    new TestMarc {
+      val r = new MarcReader("src/test/scala/marc/not_even_leader.mrc")
+      intercept[InvalidRecordLengthException] {
+        r.records.head
+      }
+    }
+  }
+  
   test("wrong record size in leader") {
     new TestMarc {
       val r = new MarcReader("src/test/scala/marc/wrong_length.mrc")
-      intercept[RecordLengthInvalidException] {
-        parser.parse(r.next)
+      intercept[InvalidRecordLengthException] {
+        r.records.head
       }
     }
   }

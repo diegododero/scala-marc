@@ -7,14 +7,9 @@ class Record(val leader: Leader) {
   val fields = MutableList[Field]()
 
   override def toString =
-    "Leader\n" +
-      leader.toString + "\n" +
-      //"Directory \n" +
-      //directory.toString + "\n" + 
-      "Fields \n" +
-      fields.map(_ toString).mkString("\n")
-  //controlFields.map(_ toString).mkString("\n") +
-  //dataFields.map(_ toString).mkString("\n")   
+    "Leader " +
+      leader.value + "\n" +
+      fields.sortWith(_.tag < _.tag).map(_ toString).mkString("\n")
 
   def apply(tag: String) = fields.find(f => f.tag == tag)
 
@@ -27,6 +22,29 @@ class Record(val leader: Leader) {
   def addField(field: Field): Unit = fields += field
 
   def toDublinCore: DublinCore = new DublinCore(this)
+  
+  private def sortedFields: MutableList[Field] = fields.sortWith(_.tag < _.tag)
+  
+  def directory: Directory = {
+    val directory = new Directory
+    var offset = 0
+    sortedFields.map(f => 
+      {    	
+    	directory.addEntry(new Entry(f.tag, "%04d".format(f.length), "%05d".format(offset)))
+    	offset = offset + f.length
+      })  
+    directory
+  }
+  
+  def base: String = leader.value + directory.toTransmissionFormat
+  
+  def recordFields: String = sortedFields.map(_ toTransmissionFormat).mkString
+  
+  def toTransmissionFormat: String = 
+    leader.update(base.size + recordFields.size + 1, base.size).value +
+    directory.toTransmissionFormat +
+    recordFields +
+    Marc.END_OF_RECORD
 
   def toXML: Elem =
     <record>
