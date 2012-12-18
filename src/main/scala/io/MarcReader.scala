@@ -28,7 +28,7 @@ class MarcReader(val filename: String) {
     raw
   }
   
-  def getNext: Record = {
+  def next: Record = {
     val raw = getRecord(stream)
     MarcParser.parse(raw)
   }

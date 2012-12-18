@@ -15,6 +15,8 @@ class Record(val leader: Leader) {
 
   def getFieldsByTag(tag: String): List[Field] = fields.filter(f => f.tag == tag).toList
 
+  def getFieldsByTags(tags: Set[String]): List[Field] = fields.filter(f => tags.contains(f.tag)).toList
+
   def controlFields: List[ControlField] = fields.filter(f => f.isControlField).map(f => f.asInstanceOf[ControlField]).toList
 
   def dataFields: List[DataField] = fields.filter(f => !f.isControlField).map(f => f.asInstanceOf[DataField]).toList

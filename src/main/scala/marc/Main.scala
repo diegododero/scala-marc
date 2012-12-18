@@ -7,7 +7,11 @@ import marc2xml.MarcXMLWriter
 object Main extends App {
   val reader = new ForgivingMarcReader(this.args(0))
   reader.start
-  println(reader.getNext)
-  println(reader.getNext)
-  println(reader.getNext)
+  println(reader.next.toDublinCore)
+  println(reader.next.toDublinCore)
+  println(reader.next.toDublinCore)
+  println(reader.next.toDublinCore)
+  val r = new MarcReader("src/test/scala/marc/sandburg.mrc")
+  r.start
+  println(r.next.toDublinCore)
 }
