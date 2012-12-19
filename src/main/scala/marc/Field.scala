@@ -3,6 +3,12 @@ package marc
 import scala.xml.Elem
 import scala.collection.mutable.MutableList
 
+/**
+ * Class for representing a field inside a MARC record
+ * 
+ * @author diego
+ *
+ */
 abstract class Field {
   def tag: String
   def toXML: Elem

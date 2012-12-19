@@ -19,41 +19,47 @@ class DublinCore(record: Record) {
   fields += "title" -> MutableList(record("245").get('a').get.value)
   fields += "date" -> MutableList(record("260").get('c').get.value)
   record.getFieldsByTag("655").map(f => 
-      fields.update("type", getSubfields("type", f))
+      updateField("type", f)
   )
   record.getFieldsByTags(Set("100", "110", "111", "700", "710", "711", "720")).map(f => 
-      fields.update("creator", getSubfields("creator", f))
+      updateField("creator", f)
   )
   record.getFieldsByTags(Set("600", "610", "611", "630", "650", "653")).map(f => 
-      fields.update("subject", getSubfields("subject", f))
+      updateField("subject", f)
   )
   record.getFieldsByTags((500 to 599).map(_ toString).toSet.diff(Set("506", "530", "540", "546"))).map(f => 
-      fields.update("description", getSubfields("description", f))
+      updateField("description", f)
   )
   record.getFieldsByTag("856").map(f => 
-      fields += "format" -> f.subfields.filter(s => s.code == 'q').map(s => s.value)
+      fields += "format" -> getSubfields(s => s.code == 'q', f)
   )  
   record.getFieldsByTag("856").map(f => 
-      fields += "identifier" -> f.subfields.filter(s => s.code == 'u').map(s => s.value)
+      fields += "identifier" -> getSubfields(s => s.code == 'u', f)
   )
   record.getFieldsByTag("786").map(f => 
-      fields += "source" -> f.subfields.filter(s => s.code == 'o' || s.code == 't').map(s => s.value)
+      fields += "source" -> getSubfields(s => s.code == 'o' || s.code == 't', f)
   )  
   record.getFieldsByTag("546").map(f => 
-      fields += "language" -> f.subfields.map(s => s.value)
+      fields += "language" -> getSubfields(f)
   )
   record.getFieldsByTag("530").map(f => 
-      fields += "relation" -> f.subfields.map(s => s.value)
+      fields += "relation" -> getSubfields(f)
   )
   record.getFieldsByTags((760 to 787).map(_ toString).toSet).map(f => 
-      fields.update("relation", getSubfields("relation", f))
+      updateField("relation", f)
   )
   record.getFieldsByTags(Set("651", "662", "751", "752")).map(f => 
-      fields.update("coverage", getSubfields("coverage", f))
+      updateField("coverage", f)
   )
   record.getFieldsByTags(Set("506", "540")).map(f => 
-      fields.update("rights", getSubfields("rights", f))
+      updateField("rights", f)
   )  
+  
+  private def getSubfields(field: Field) = field.subfields.map(s => s.value)
+  
+  private def getSubfields(f: Subfield => Boolean, field: Field) = field.subfields.filter(f).map(s => s.value)
+  
+  private def updateField(field: String, f: Field): Unit = fields.update(field, getSubfields(field, f))
   
   private def getSubfields(field: String, f: Field): MutableList[String] = fields.getOrElse(field, MutableList()) ++ List(f.subfields.map(s => s.value).mkString(" "))
   

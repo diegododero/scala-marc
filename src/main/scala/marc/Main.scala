@@ -3,6 +3,7 @@ package marc
 import io.MarcReader
 import io.MarcParser
 import marc2xml.MarcXMLWriter
+import io.ForgivingMarcReader
 
 object Main extends App {
   val reader = new ForgivingMarcReader(this.args(0))

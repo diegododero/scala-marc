@@ -6,6 +6,11 @@ import exceptions.InvalidRecordLengthException
 import marc.Record
 import scala.collection.mutable.MutableList
 
+/**
+ * A class for reading MARC record from a file
+ * @author diego
+ *
+ */
 class MarcReader(val filename: String) {
   var stream: scala.io.Source = scala.io.Source.fromFile(filename)
 
