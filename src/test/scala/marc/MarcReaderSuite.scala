@@ -14,7 +14,7 @@ import exceptions.InvalidRecordLengthException
 class MarcReaderSuite extends FunSuite {
   trait TestMarc {
     val reader = new MarcReader("src/test/scala/marc/sandburg.mrc")
-    val record = reader.records.head
+    val record = reader.next
     MarcXMLWriter.write("sandburg.xml", record)
   }
 
@@ -34,7 +34,7 @@ class MarcReaderSuite extends FunSuite {
     new TestMarc {
       val r = new MarcReader("src/test/scala/marc/not_even_leader.mrc")
       intercept[InvalidRecordLengthException] {
-        r.records.head
+        r.next
       }
     }
   }
@@ -43,7 +43,7 @@ class MarcReaderSuite extends FunSuite {
     new TestMarc {
       val r = new MarcReader("src/test/scala/marc/wrong_length.mrc")
       intercept[InvalidRecordLengthException] {
-        r.records.head
+        r.next
       }
     }
   }

@@ -15,15 +15,17 @@ import exceptions.InvalidRecordLengthException
 class MarcWriterSuite extends FunSuite {
   trait TestMarc {
     val reader = new MarcReader("src/test/scala/marc/sandburg.mrc")
-    val record = reader.records.head
+    val record = reader.next
 
   }
   
   test("writing") {
     new TestMarc {
-      MarcWriter.write(record, "sandburg2.mrc")
+      val writer = new MarcWriter("sandburg2.mrc")
+      writer.write(record)
+      writer.close
       val r = new MarcReader("sandburg2.mrc")
-      val marc = r.records.head
+      val marc = r.next
       assert(marc.toTransmissionFormat === record.toTransmissionFormat)
     }
   }

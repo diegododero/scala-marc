@@ -8,20 +8,22 @@ import marc.Field
 import marc.Leader
 import marc.Marc
 import marc.Record
-import scala.Array.canBuildFrom
-import exceptions.InvalidRecordLengthException
 import marc.Subfield
 import marc.LeaderValidator
+import exceptions.InvalidDirectoryLenghtException
 
 object MarcParser {
   private var byteArray: Array[Byte] = new Array[Byte](10)
 
   def parse(recordData: String): Record = {
     byteArray = recordData.map(_.toByte).toArray
+    if (directory.size % Marc.DIRECTORY_ENTRY_LENGTH != 0){
+      throw new InvalidDirectoryLenghtException
+    }
     val recordLengthInLeader = leaderData.slice(0, 5)
     val record = new Record(LeaderValidator.validate(leaderData))
-    getControlFields(record)
-    getDataFields(record)
+    addControlFields(record)
+    addDataFields(record)
     record
   }
 
@@ -29,8 +31,8 @@ object MarcParser {
 
   private def leaderData: String = byteArray.slice(0, Marc.LEADER_LENGTH).map(_ toChar).mkString("")
 
-  def directory: Array[Byte] = byteArray.slice(Marc.LEADER_LENGTH, byteArray.size - 1).takeWhile(_ != Marc.FIELD_DELIMITER)
-  def dataFields: Array[Byte] = byteArray.slice(Marc.LEADER_LENGTH + directory.length + 1, byteArray.size - 1)
+  private def directory: Array[Byte] = byteArray.slice(Marc.LEADER_LENGTH, byteArray.size - 1).takeWhile(_ != Marc.FIELD_DELIMITER)
+  private def dataFields: Array[Byte] = byteArray.slice(Marc.LEADER_LENGTH + directory.length + 1, byteArray.size - 1)
 
   def createDirectory: Directory = {
     val d = new Directory
@@ -62,13 +64,15 @@ object MarcParser {
   }
 
   def getControlField(tag: String, data: String): ControlField = new ControlField(tag, data)
+  
+  def addFields(record: Record, checkField: String => Boolean, create: (String, String) => Field): Unit = mergeDirectoryWithFields.filter(t => checkField(t._1.tag)).sortWith(_._1.tag > _._1.tag).map(x => record.addField(create(x._1.tag, x._2)))
 
-  def getControlFields(record: Record): Unit = {
-    mergeDirectoryWithFields.filter(t => isControlTag(t._1.tag)).sortWith(_._1.tag > _._1.tag).map(x => record.addField(getControlField(x._1.tag, x._2)))
+  def addControlFields(record: Record): Unit = {
+    addFields(record, isControlTag, getControlField)
   }
 
-  def getDataFields(record: Record): Unit = {
-    mergeDirectoryWithFields.filter(t => !isControlTag(t._1.tag)).sortWith(_._1.tag > _._1.tag).map(x => record.addField(getDataField(x._1.tag, x._2)))
+  def addDataFields(record: Record): Unit = {
+    addFields(record, x => !isControlTag(x), getDataField)
   }
 
   def isControlTag(tag: String): Boolean = tag.startsWith(Marc.CONTROL_TAG_PREFIX)

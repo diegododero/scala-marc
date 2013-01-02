@@ -16,8 +16,12 @@ class DublinCore(record: Record) {
   private val definedFields = Set("title", "date", "type", "creator", "subject", "description", "format", "identifier", "source", "language", "relation", "coverage", "rights")
   val fields = Map[String, MutableList[String]]()
 
-  fields += "title" -> MutableList(record("245").get('a').get.value)
-  fields += "date" -> MutableList(record("260").get('c').get.value)
+  record.getFieldsByTag("245").map(f => 
+      fields += "title" -> getSubfields(s => s.code == 'a', f)
+  )  
+  record.getFieldsByTag("260").map(f => 
+      fields += "date" -> getSubfields(s => s.code == 'c', f)
+  )  
   record.getFieldsByTag("655").map(f => 
       updateField("type", f)
   )

@@ -11,10 +11,10 @@ import scala.collection.mutable.MutableList
  * @author diego
  *
  */
-class MarcReader(val filename: String) {
+class MarcReader(val filename: String) extends Iterator[Record] {
   var stream: scala.io.Source = scala.io.Source.fromFile(filename)
 
-  def records: List[Record] = {
+  /*def records: List[Record] = {
     val source = scala.io.Source.fromFile(filename)
     val records = MutableList[Record]()
     while (source.hasNext) {
@@ -22,13 +22,13 @@ class MarcReader(val filename: String) {
       records += MarcParser.parse(raw)
     }
     records.toList
-  }
+  }*/
   
   def start: Unit = {
     stream = scala.io.Source.fromFile(filename)
   }
   
-  def getNextData: String = {
+  private def getNextData: String = {
     val raw = getRecord(stream)
     raw
   }
@@ -37,6 +37,8 @@ class MarcReader(val filename: String) {
     val raw = getRecord(stream)
     MarcParser.parse(raw)
   }
+  
+  def hasNext: Boolean = stream.hasNext
   
   protected def getRecord(source: scala.io.Source): String = {
       val length = source.take(Marc.RECORD_LENGTH_SIZE).toList.mkString

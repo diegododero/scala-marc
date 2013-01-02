@@ -4,6 +4,7 @@ import org.scalatest.FunSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 import io.MarcReader
+import exceptions.UndefinedFieldException
 
 @RunWith(classOf[JUnitRunner])
 class MarcDublinCoreSuite extends FunSuite {
@@ -42,5 +43,13 @@ class MarcDublinCoreSuite extends FunSuite {
     new TestMarc {
       assert(dc.get("description") === List("A poem about numbers and their characteristics. Features anamorphic, or distorted, drawings which can be restored to normal by viewing from a particular angle or by viewing the image's reflection in the provided Mylar cone.", "One Mylar sheet included in pocket."))
     }
-  }   
+  } 
+  
+  test("undefined field") {
+    new TestMarc {
+      intercept[UndefinedFieldException] {
+        val author = dc.get("author")
+      }
+    }
+  }    
 }
